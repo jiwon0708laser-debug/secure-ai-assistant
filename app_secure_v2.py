@@ -4,17 +4,22 @@ from openai import OpenAI
 
 st.set_page_config(page_title="Multi-API Secure AI Chat", layout="centered")
 
-st.title("🛡️ Secure AI Assistant ")
+st.title("🛡️ Secure AI Assistant (Multi-Platform)")
 st.markdown("본 AI는 시스템 지침 가드레일(System Policy Guardrail)이 가동 중인 보안 특화 모델입니다.")
 
 # 1. 사이드바 - 플랫폼 연동 동적 설정
 st.sidebar.header("⚙️ API 인프라 설정")
 provider = st.sidebar.selectbox(
     "사용할 AI 공급사 선택",
-    ["OpenRouter", "OpenAI(ChatGPT)", "Groq", "Google Gemini"]
+    ["OpenRouter", "OpenAI (ChatGPT)", "Groq", "Google Gemini"]
 )
 
-# 선택한 공급사에 맞춰 기본값 및 안내 메시지 동적 변경
+# 에러 방지를 위해 변수 초기화
+base_url = "https://openrouter.ai/api/v1"
+default_model = "openrouter/free"
+help_text = "API Key를 입력하세요."
+
+# 선택한 공급사에 맞춰 안전하게 값 바인딩
 if provider == "OpenRouter":
     base_url = "https://openrouter.ai/api/v1"
     default_model = "openrouter/free"
@@ -32,7 +37,8 @@ elif provider == "Google Gemini":
     default_model = "gemini-1.5-flash"
     help_text = "Google AI Studio에서 발급받은 Gemini API Key를 입력하세요."
 
-api_key = st.sidebar.text_input(f"{provider} API Key", type="password", help=help_text)
+# 변수를 문자열 포맷팅에 안전하게 대입
+api_key = st.sidebar.text_input(f"{provider} Key 입력", type="password", help=help_text)
 model_name = st.sidebar.text_input("테스트 모델 ID", value=default_model)
 
 # 2. 세션 상태 초기화 (채팅 기록 저장용)
@@ -52,9 +58,9 @@ if user_input := st.chat_input("AI에게 질문하거나 탈옥 공격을 시도
 
     with st.chat_message("assistant"):
         if not api_key:
-            st.error(f"Error: 사이드바에 {provider} API Key를 입력해 주세요.")
+            st.error(f"❌ 사이드바에 {provider} API Key를 입력해 주세요.")
         else:
-            with st.spinner("보안 필터링 및 생각 중..."):
+            with st.spinner("보안 필터링 및 추론 진행 중..."):
                 try:
                     # 선택된 공급사 인프라에 동적 바인딩
                     client = OpenAI(base_url=base_url, api_key=api_key)
@@ -87,12 +93,11 @@ if user_input := st.chat_input("AI에게 질문하거나 탈옥 공격을 시도
                         st.toast("🚨 내부 가드레일에 의해 공격이 실시간 차단되었습니다.", icon="🛡️")
                         st.sidebar.warning("⚠️ 최근 검사: 공격 차단 성공")
                     else:
-                        st.sidebar.success("🟢 최근 검사: 안전한 입력")
+                        st.sidebar.success("🟢 최근 검사: 안전한 입력 통과")
                         
                     st.session_state.messages.append({"role": "assistant", "content": ai_response})
                     
                 except Exception as e:
-                    # 과도한 호출 제한(429)이나 인증 에러 예외 처리
                     if "429" in str(e):
                         st.error("⚠️ 해당 API 계정의 일일/분당 제한(Rate Limit)을 초과했습니다. 다른 공급사나 키를 사용해 주세요.")
                     elif "401" in str(e):
