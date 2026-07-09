@@ -9,43 +9,36 @@ st.markdown("본 AI는 시스템 지침 가드레일(System Policy Guardrail)이
 
 # 1. 사이드바 - 플랫폼 연동 동적 설정
 st.sidebar.header("⚙️ API 인프라 설정")
-
-# 기본 선택값을 'OpenAI (ChatGPT)'로 설정하기 위해 index=1 지정
 provider = st.sidebar.selectbox(
     "사용할 AI 공급사 선택",
-    ["OpenRouter", "OpenAI (ChatGPT)", "Groq", "Google Gemini"],
-    index=1
+    ["OpenRouter", "OpenAI (ChatGPT)", "Groq", "Google Gemini"]
 )
 
-# 선택한 공급사에 맞춰 안전하게 값 바인딩 (기본값들을 OpenAI 기준으로 선언)
-base_url = "https://api.openai.com/v1"
-default_model = "gpt-4o-mini"
-help_text = "sk-로 시작하는 OpenAI API Key를 입력하세요."
-default_key = "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"
+# 에러 방지를 위해 변수 초기화
+base_url = "https://openrouter.ai/api/v1"
+default_model = "openrouter/free"
+help_text = "API Key를 입력하세요."
 
+# 선택한 공급사에 맞춰 안전하게 값 바인딩
 if provider == "OpenRouter":
     base_url = "https://openrouter.ai/api/v1"
     default_model = "openrouter/free"
     help_text = "OpenRouter API Key를 입력하세요."
-    default_key = ""  # OpenRouter 선택 시에는 빈칸 처리
 elif provider == "OpenAI (ChatGPT)":
     base_url = "https://api.openai.com/v1"
     default_model = "gpt-4o-mini"
     help_text = "sk-로 시작하는 OpenAI API Key를 입력하세요."
-    default_key = "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"
 elif provider == "Groq":
     base_url = "https://api.groq.com/openai/v1"
     default_model = "llama-3.1-8b-instant"
     help_text = "gsk_로 시작하는 Groq API Key를 입력하세요."
-    default_key = ""
 elif provider == "Google Gemini":
     base_url = "https://generativelanguage.googleapis.com/v1beta/openai"
     default_model = "gemini-1.5-flash"
     help_text = "Google AI Studio에서 발급받은 Gemini API Key를 입력하세요."
-    default_key = ""
 
-# value 인자에 default_key를 넣어 기본 입력되도록 설정 (수정 및 삭제 가능)
-api_key = st.sidebar.text_input(f"{provider} Key 입력", value=default_key, type="password", help=help_text)
+# 변수를 문자열 포맷팅에 안전하게 대입
+api_key = st.sidebar.text_input(f"{provider} Key 입력", type="password", help=help_text)
 model_name = st.sidebar.text_input("테스트 모델 ID", value=default_model)
 
 # 2. 세션 상태 초기화 (채팅 기록 저장용)
@@ -67,7 +60,7 @@ if user_input := st.chat_input("AI에게 질문하거나 탈옥 공격을 시도
         if not api_key:
             st.error(f"Error: 사이드바에 {provider} API Key를 입력해 주세요.")
         else:
-            with st.spinner("보안 필터링 및 생각 중..."):
+            with st.spinner("보안 필터링 및 추론 진행 중..."):
                 try:
                     # 선택된 공급사 인프라에 동적 바인딩
                     client = OpenAI(base_url=base_url, api_key=api_key)
