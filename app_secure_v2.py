@@ -4,7 +4,7 @@ from openai import OpenAI
 
 st.set_page_config(page_title="Multi-API Secure AI Chat", layout="centered")
 
-st.title("🛡️ Secure AI Assistant (Multi-Platform)")
+st.title("🛡️ Secure AI Assistant ")
 st.markdown("본 AI는 시스템 지침 가드레일(System Policy Guardrail)이 가동 중인 보안 특화 모델입니다.")
 
 # 1. 사이드바 - 플랫폼 연동 동적 설정
@@ -58,7 +58,7 @@ if user_input := st.chat_input("AI에게 질문하거나 탈옥 공격을 시도
 
     with st.chat_message("assistant"):
         if not api_key:
-            st.error(f"❌ 사이드바에 {provider} API Key를 입력해 주세요.")
+            st.error(f"Error: 사이드바에 {provider} API Key를 입력해 주세요.")
         else:
             with st.spinner("보안 필터링 및 추론 진행 중..."):
                 try:
