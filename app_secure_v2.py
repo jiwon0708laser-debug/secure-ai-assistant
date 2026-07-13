@@ -46,7 +46,7 @@ model_name = st.sidebar.text_input("테스트 모델 ID", value=default_model)
 
 # --- 2. 메인 화면 UI (간단한 소개 및 대화창) ---
 # 원래 타이틀 자리에 깔끔한 소개문구 배치
-st.subheader("🤖 가드레일 취약점 검증 시뮬레이터")
+st.subheader("가드레일 취약점 검증 시뮬레이터")
 st.markdown(
     "본 시스템은 LLM 내부에 설정된 보안 정책의 우회 가능성을 정량적으로 테스트하기 위한 환경입니다."
 )
